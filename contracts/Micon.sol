@@ -88,8 +88,7 @@ contract Micon is ERC1155Data,MiconStorage,ERC1155Receiver,Ownable{
         }
         else{
             miconOwner[_miconId] = buyer;
-            
-        }
+          }
         emit Edition(address(this),buyer,_miconId,_editionNumber);
     }
     
@@ -125,15 +124,8 @@ contract Micon is ERC1155Data,MiconStorage,ERC1155Receiver,Ownable{
         emit Edition(seller,address(this),_miconId,_editionNumber);
     }
     
-    /*
-     * @dev To buy the retrieve the owner of edition of micon.
-     * 
-     * @param
-     *  '_miconId' - specifies the micon id
-     *  '_editionNumber' - specifies the edition number of the micon
-     */
-    function ownerOfEdition(uint256 _miconId , uint256 _editionNumber)public view returns(address){
+    // To  retrieve the owner of edition of micon.
+    function ownerOfEdition(uint256 _miconId , uint256 _editionNumber)internal view returns(address){
        return editionOwner[_miconId][_editionNumber];
     }
-
 }
