@@ -19,6 +19,7 @@ contract("Micon", () => {
    
     assert(micon.address !== "");
   });
+
   beforeEach(async function () {
     micon = await Micon.new();
     accounts = await web3.eth.getAccounts();
@@ -50,6 +51,7 @@ contract("Micon", () => {
       }
     });
   });
+
   describe("[Testcase 4: To create micon with no editions]", () => {
     it("Create Micon", async () => {
       await micon.createMicon(1);
@@ -68,7 +70,6 @@ contract("Micon", () => {
     });
   });
 
-  
   describe("[Testcase 6: To sell an edition back]", () => {
     it("Sell Micon", async () => {
       await micon.createMicon(5);
@@ -79,6 +80,49 @@ contract("Micon", () => {
       var actual = await micon.editionOwner(2,2);
       var expected = micon.address;
       assert.equal(actual,expected);
+    });
+  });
+
+  describe("[Testcase 7: To own editions of multiple micons]", () => {
+    it("Buy Micon", async () => {
+      await micon.createMicon(5);
+      await micon.createMicon(4);
+      await micon.buyEdition(2,2,{from : accounts[3]});
+      await micon.buyEdition(1,4,{from:accounts[3]});
+      var actual = await micon.editionOwner(2,2);
+      var expected = accounts[3];
+      assert.equal(actual,expected);
+      var actual = await micon.editionOwner(1,4);
+      var expected = accounts[3];
+      assert.equal(actual,expected);
+    });
+  });
+
+  describe("[Testcase 8: To determine previously owned edition owner]", () => {
+    it("Sell Micon", async () => {
+      await micon.createMicon(3);
+      await micon.createMicon(8);
+      await micon.buyEdition(2,6,{from : accounts[8]});
+      await micon.setApprovalForAll(micon.address,true,{from:accounts[8]});
+      await micon.sellEdition(2,6,{from:accounts[8]});
+      var actual = await micon.previouslyOwnedEdition(2,6);
+      var expected = accounts[8];
+      assert.equal(actual,expected);
+    });
+  });
+
+  describe("[Testcase 9: To try to sell the edition who is not an owner]", () => {
+    it("Sell Micon", async () => {
+      await micon.createMicon(10);
+      await micon.createMicon(3);
+      await micon.createMicon(7);
+      await micon.buyEdition(3,7,{from : accounts[4]});
+      await micon.buyEdition(1,4,{from : accounts[2]});
+      await micon.setApprovalForAll(micon.address,true,{from:accounts[2]});
+      try{
+        await micon.sellEdition(1,5,{from:accounts[2]});
+      }catch{
+      }
     });
   });
 });
