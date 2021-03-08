@@ -70,7 +70,18 @@ contract("Micon", () => {
     });
   });
 
-  describe("[Testcase 6: To sell an edition back]", () => {
+  describe("[Testcase 6: To create the micon who is not the owner ]", () => {
+    it("Edition Exists", async () => {
+      await micon.createMicon(1);
+      try {
+        await micon.createMicon(9,{from : accounts[4]});
+      }
+      catch{
+      }
+    });
+  });
+
+  describe("[Testcase 7: To sell an edition back]", () => {
     it("Sell Micon", async () => {
       await micon.createMicon(5);
       await micon.createMicon(4);
@@ -83,7 +94,7 @@ contract("Micon", () => {
     });
   });
 
-  describe("[Testcase 7: To own editions of multiple micons]", () => {
+  describe("[Testcase 8: To own editions of multiple micons]", () => {
     it("Buy Micon", async () => {
       await micon.createMicon(5);
       await micon.createMicon(4);
@@ -98,7 +109,7 @@ contract("Micon", () => {
     });
   });
 
-  describe("[Testcase 8: To determine previously owned edition owner]", () => {
+  describe("[Testcase 9: To determine previously owned edition owner]", () => {
     it("Sell Micon", async () => {
       await micon.createMicon(3);
       await micon.createMicon(8);
@@ -111,7 +122,7 @@ contract("Micon", () => {
     });
   });
 
-  describe("[Testcase 9: To try to sell the edition who is not an owner]", () => {
+  describe("[Testcase 10: To try to sell the edition who is not an owner]", () => {
     it("Sell Micon", async () => {
       await micon.createMicon(10);
       await micon.createMicon(3);
@@ -123,6 +134,29 @@ contract("Micon", () => {
         await micon.sellEdition(1,5,{from:accounts[2]});
       }catch{
       }
+    });
+  });
+
+  describe("[Testcase 11: To sell the edition without approval]", () => {
+    it("Sell Micon", async () => {
+      await micon.createMicon(10);
+      await micon.createMicon(7);
+      await micon.buyEdition(2,5,{from : accounts[5]});
+      await micon.buyEdition(1,4,{from : accounts[2]});
+      try{
+        await micon.sellEdition(2,3,{from:accounts[5]});
+      }catch{
+      }
+    });
+  });
+
+  describe("[Testcase 12: To determine whether the edition of micon exists or not]", () => {
+    it("Edition Exists", async () => {
+      await micon.createMicon(5);
+      await micon.createMicon(1);
+      var actual = await micon.editionExists(2);
+      var expected = false;
+      assert.equal(actual,expected);
     });
   });
 });
