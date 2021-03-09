@@ -137,7 +137,22 @@ contract("Micon", () => {
     });
   });
 
-  describe("[Testcase 11: To sell the edition without approval]", () => {
+  describe("[Testcase 11: To buy the edition that has been already sold ]", () => {
+    it("Buy Micon", async () => {
+      await micon.createMicon(5);
+      await micon.createMicon(2);
+      await micon.createMicon(7);
+      await micon.buyEdition(3,7,{from : accounts[4]});
+      await micon.buyEdition(1,4,{from : accounts[2]});
+      try{
+        await micon.buyEdition(3,7,{from:accounts[5]});
+      }
+      catch{
+      } 
+    });
+  });
+
+  describe("[Testcase 12: To sell the edition without approval]", () => {
     it("Sell Micon", async () => {
       await micon.createMicon(10);
       await micon.createMicon(7);
@@ -147,16 +162,6 @@ contract("Micon", () => {
         await micon.sellEdition(2,3,{from:accounts[5]});
       }catch{
       }
-    });
-  });
-
-  describe("[Testcase 12: To determine whether the edition of micon exists or not]", () => {
-    it("Edition Exists", async () => {
-      await micon.createMicon(5);
-      await micon.createMicon(1);
-      var actual = await micon.editionExists(2);
-      var expected = false;
-      assert.equal(actual,expected);
     });
   });
 });
