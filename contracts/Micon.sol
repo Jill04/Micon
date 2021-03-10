@@ -13,9 +13,10 @@ abstract contract MiconStorage{
     mapping(uint256 => uint256[])public miconEditions;
     mapping(uint256 => mapping(uint256 => address))public editionOwner;
     mapping(uint256 => address)public miconCreator;
-    mapping(uint256 => mapping(uint256 => address))public previouslyOwnedEdition;
+    mapping(uint256 => mapping(uint256 => address[]))public previouslyOwnedEditionOwners;
     mapping(uint256 => bool)public editionExists;
     mapping(uint256 => address)public miconOwner; // only for micon with no editions
+    
     
     //Events
     event MiconCreated(
@@ -43,7 +44,7 @@ contract Micon is ERC1155Data,MiconStorage,ERC1155Receiver,Ownable{
      *  '_supply' - specifies number of supply
      */
     function createMicon(uint256 _supply)external onlyOwner(){
-         require(_supply <= MAX_EDITION,"ERR_MAX_EDITION_IS_10");
+         require(_supply != 0 && _supply <= MAX_EDITION,"ERR_EDITION_SHOULD_BE_BETWEEN_1_AND_10");
          miconCreator[miconId] = msg.sender;
         _mintEditions(miconId,_supply);
          emit MiconCreated(address(this),miconId,now);
@@ -80,7 +81,7 @@ contract Micon is ERC1155Data,MiconStorage,ERC1155Receiver,Ownable{
        
         require(_editionNumber <= miconEditions[_miconId].length,"ERR_EDITION_NUMBER_MISMATCH");
         require(balances[_miconId][buyer] < 1,"ERR_CAN_OWN_ONLY_1_EDITION");
-        require(ownerOfEdition(_miconId,_editionNumber) == address(this) || miconOwner[_miconId] == address(this),"ERR_EDITION_ALREADY_SOLD");
+        require(ownerOfEdition(_miconId,_editionNumber) == address(this) || miconOwner[_miconId] == address(this),"ERR_EDITION_ALREADY_SOLD_OR_DOESNOT_EXISTS");
         IERC1155(address(this)).safeTransferFrom(address(this),buyer,_miconId,1,"");
         
         if(editionExists[_miconId]) 
@@ -116,13 +117,13 @@ contract Micon is ERC1155Data,MiconStorage,ERC1155Receiver,Ownable{
            require(ownerOfEdition(_miconId,_editionNumber) == seller,"ERR_NOT_AN_OWNER_OF_EDITION"); 
            IERC1155(address(this)).safeTransferFrom(seller,address(this),_miconId,1,"");
            editionOwner[_miconId][_editionNumber] = address(this);
-           previouslyOwnedEdition[_miconId][_editionNumber] = seller;
+        
         }
         else{
              IERC1155(address(this)).safeTransferFrom(seller,address(this),_miconId,1,"");
              miconOwner[_miconId] = address(this);
         }
-       
+        previouslyOwnedEditionOwners[_miconId][_editionNumber].push(seller);
         emit Edition(seller,address(this),_miconId,_editionNumber);
     }
     
@@ -130,4 +131,5 @@ contract Micon is ERC1155Data,MiconStorage,ERC1155Receiver,Ownable{
     function ownerOfEdition(uint256 _miconId , uint256 _editionNumber)internal view returns(address){
        return editionOwner[_miconId][_editionNumber];
     }
+
 }
