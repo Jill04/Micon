@@ -56,6 +56,9 @@ contract("Micon", () => {
     it("Create Micon", async () => {
       await micon.createMicon(1);
       await micon.buyEdition(1,0,{from : accounts[2]});
+      var actual = await micon.miconOwner(1);
+      var expected = accounts[2];
+      assert.equal(actual,expected);
     });
   });
 
@@ -71,7 +74,7 @@ contract("Micon", () => {
   });
 
   describe("[Testcase 6: To create the micon who is not the owner ]", () => {
-    it("Edition Exists", async () => {
+    it("Create Micon", async () => {
       await micon.createMicon(1);
       try {
         await micon.createMicon(9,{from : accounts[4]});
@@ -86,8 +89,8 @@ contract("Micon", () => {
       await micon.createMicon(5);
       await micon.createMicon(4);
       await micon.buyEdition(2,2,{from : accounts[6]});
-      await micon.setApprovalForAll(micon.address,true,{from:accounts[6]});
-      await micon.sellEdition(2,2,{from:accounts[6]});
+      await micon.setApprovalForAll(micon.address,true,{from : accounts[6]});
+      await micon.sellEdition(2,2,{from : accounts[6]});
       var actual = await micon.editionOwner(2,2);
       var expected = micon.address;
       assert.equal(actual,expected);
@@ -99,7 +102,7 @@ contract("Micon", () => {
       await micon.createMicon(5);
       await micon.createMicon(4);
       await micon.buyEdition(2,2,{from : accounts[3]});
-      await micon.buyEdition(1,4,{from:accounts[3]});
+      await micon.buyEdition(1,4,{from : accounts[3]});
       var actual = await micon.editionOwner(2,2);
       var expected = accounts[3];
       assert.equal(actual,expected);
@@ -109,15 +112,21 @@ contract("Micon", () => {
     });
   });
 
-  describe("[Testcase 9: To determine previously owned edition owner]", () => {
+  describe("[Testcase 9: To determine previously owned edition owners]", () => {
     it("Sell Micon", async () => {
       await micon.createMicon(3);
       await micon.createMicon(8);
       await micon.buyEdition(2,6,{from : accounts[8]});
-      await micon.setApprovalForAll(micon.address,true,{from:accounts[8]});
-      await micon.sellEdition(2,6,{from:accounts[8]});
-      var actual = await micon.previouslyOwnedEdition(2,6);
+      await micon.setApprovalForAll(micon.address,true,{from : accounts[8]});
+      await micon.sellEdition(2,6,{from : accounts[8]});
+      await micon.buyEdition(2,6,{from : accounts[3]});
+      await micon.setApprovalForAll(micon.address,true,{from : accounts[3]});
+      await micon.sellEdition(2,6,{from : accounts[3]});
+      var actual = await micon.previouslyOwnedEditionOwners(2,6,0);
       var expected = accounts[8];
+      assert.equal(actual,expected);
+      var actual = await micon.previouslyOwnedEditionOwners(2,6,1);
+      var expected = accounts[3];
       assert.equal(actual,expected);
     });
   });
@@ -129,9 +138,9 @@ contract("Micon", () => {
       await micon.createMicon(7);
       await micon.buyEdition(3,7,{from : accounts[4]});
       await micon.buyEdition(1,4,{from : accounts[2]});
-      await micon.setApprovalForAll(micon.address,true,{from:accounts[2]});
+      await micon.setApprovalForAll(micon.address,true,{from : accounts[2]});
       try{
-        await micon.sellEdition(1,5,{from:accounts[2]});
+        await micon.sellEdition(1,5,{from : accounts[2]});
       }catch{
       }
     });
@@ -145,7 +154,7 @@ contract("Micon", () => {
       await micon.buyEdition(3,7,{from : accounts[4]});
       await micon.buyEdition(1,4,{from : accounts[2]});
       try{
-        await micon.buyEdition(3,7,{from:accounts[5]});
+        await micon.buyEdition(3,7,{from : accounts[5]});
       }
       catch{
       } 
@@ -159,7 +168,7 @@ contract("Micon", () => {
       await micon.buyEdition(2,5,{from : accounts[5]});
       await micon.buyEdition(1,4,{from : accounts[2]});
       try{
-        await micon.sellEdition(2,3,{from:accounts[5]});
+        await micon.sellEdition(2,3,{from : accounts[5]});
       }catch{
       }
     });
